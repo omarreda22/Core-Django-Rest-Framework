@@ -1,15 +1,57 @@
 import json
-from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render, get_object_or_404, redirect
+from django.http import JsonResponse
+from django.forms.models import model_to_dict
+
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+
+from products.models import Product
+from .serializers import ProductSerializer
 
 
 def api_first(request, *args, **kwargs):
-    body = request.body
+    model_data = Product.objects.all().order_by("?").first()
+    print(model_data)
     data = {}
-    try:
-        data = json.loads(body)  # take string of json data -> python dict
-    except:
-        pass
-    print(data)
-    # return JsonResponse({"omar": "reda"})
+    if model_data:
+        # data['name'] = model_data.name
+        # data['content'] = model_data.content
+        # data['price'] = model_data.price
+        # OR
+        data = model_to_dict(model_data)
     return JsonResponse(data)
+
+
+@api_view(['GET'])
+def api_home_test(request):
+    model_data = Product.objects.all().order_by("?")
+    serializ = ProductSerializer(
+        model_data, many=True).data  # turn model to json data
+    return Response(serializ)
+
+
+@api_view(['POST'])
+def api_post_data(request):
+    serialize = ProductSerializer(data=request.data)
+    if serialize.is_valid(raise_exception=True):
+        data = serialize.save()
+        print(serialize.data)
+        return Response(serialize.data)
+    # return Response({"Message": "not good data"}, status=400)
+
+
+@api_view(['GET', 'PUT', 'DELETE'])
+def api_edit_and_delete(request, id):
+    product = get_object_or_404(Product, id=id)
+    if request.method == 'GET':
+        serialize = ProductSerializer(product).data
+        return Response(serialize)
+    elif request.method == 'PUT':
+        serialize = ProductSerializer(product, request.data)
+        if serialize.is_valid():
+            serialize.save()
+            return Response(serialize.data)
+    elif request.method == 'DELETE':
+        product.delete()
+        return redirect('/api_home/')
