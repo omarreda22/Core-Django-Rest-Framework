@@ -13,7 +13,6 @@ endpoint = 'http://localhost:8000/api_edit_and_delete/13/'
 get_response = requests.delete(endpoint)
 
 # print(get_response.json()[0][1])
-# print(get_response.text)
 print(get_response.json())
 # print(get_response.text)
 # print(get_response.status_code)
