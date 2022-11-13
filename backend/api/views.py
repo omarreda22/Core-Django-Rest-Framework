@@ -44,14 +44,17 @@ def api_post_data(request):
 @api_view(['GET', 'PUT', 'DELETE'])
 def api_edit_and_delete(request, id):
     product = get_object_or_404(Product, id=id)
+
     if request.method == 'GET':
         serialize = ProductSerializer(product).data
         return Response(serialize)
+
     elif request.method == 'PUT':
         serialize = ProductSerializer(product, request.data)
         if serialize.is_valid():
             serialize.save()
             return Response(serialize.data)
+
     elif request.method == 'DELETE':
         product.delete()
         return redirect('/api_home/')
