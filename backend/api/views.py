@@ -58,3 +58,36 @@ def api_edit_and_delete(request, id):
     elif request.method == 'DELETE':
         product.delete()
         return redirect('/api_home/')
+
+
+# same view for pk and pk None
+# contain all methods [ get - post - put - delete ]
+@api_view(['GET', 'POST', 'PUT', 'DELETE'])
+def all_methods(request, pk=None, *args, **kwargs):
+    method = request.method
+    if pk is None:
+        if method == 'GET':
+            qs = Product.objects.all()
+            serialize = ProductSerializer(qs, many=True).data
+            return Response(serialize)
+        if method == 'POST':
+            serialize = ProductSerializer(data=request.data)
+            if serialize.is_valid():
+                serialize.save()
+                return Response(serialize.data)
+    else:
+        qs = get_object_or_404(Product, pk=pk)
+        if method == 'GET':
+            serialize = ProductSerializer(qs).data
+            return Response(serialize)
+        if method == 'PUT':
+            serialize = ProductSerializer(qs, request.data)
+            if serialize.is_valid():
+                serialize.save()
+                return Response(serialize.data)
+        if method == 'DELETE':
+            qs.delete()
+            qs = Product.objects.all()
+            serialize = ProductSerializer(qs, many=True).data
+            return Response(serialize)
+            # return redirect('api:all_methods')
