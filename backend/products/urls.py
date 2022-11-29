@@ -1,8 +1,21 @@
-from django.urls import path
+from django.urls import path, include
+
+from rest_framework.authtoken.views import obtain_auth_token
+from rest_framework.routers import DefaultRouter
 
 from . import views
+from .viewsets.viewset import ProductViewSet
 
 app_name = 'products'
+
+"""
+if routers in same url page
+router = DefaultRouter()
+router.register('products', ProductViewSet, basename='products')
+path('viewsets/', include(router.urls))
+"""
+router = DefaultRouter()
+router.register('products', ProductViewSet, basename='products')
 
 urlpatterns = [
     path('generics_get_one_product/<int:pk>/',
@@ -18,4 +31,14 @@ urlpatterns = [
     ########################################################
     path('mixins/', views.product_mixin_view),
     path('mixins/<int:pk>/', views.product_mixin_view),
+    #######################################################
+    #######################################################
+    # Token for authentications
+    path('token/', obtain_auth_token),
+    #######################################################
+    #######################################################
+    # ViewSet and Router
+    # products/viewset/products/ ~ name_of_product
+    # path('viewsets/', include('products.viewset.routers')),
+    path('viewsets/', include(router.urls))
 ]
