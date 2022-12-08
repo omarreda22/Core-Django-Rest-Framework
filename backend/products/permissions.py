@@ -21,7 +21,7 @@ class IsStaffEditorPermissions(permissions.DjangoModelPermissions):
     def has_permission(self, request, view):
         # if not request.user.username == 'omarreda':
         #     return False
-        print(request.user.username)
+        # print(request.user.username)
         if not request.user.is_staff:
             return False
         return super().has_permission(request, view)

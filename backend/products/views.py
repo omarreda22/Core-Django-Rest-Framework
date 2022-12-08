@@ -6,7 +6,7 @@ from .models import Product
 from api.serializers import ProductSerializer
 from .permissions import IsStaffEditorPermissions
 from .authentication import TokenAuthentication
-from .mixins import IsStaffEditorPermissionMixin
+from .mixins import IsStaffEditorPermissionMixin, UserQuerySetMixin
 
 # [ Get List - Post - Detial - Updata - Delete]
 
@@ -101,7 +101,7 @@ generic_GPD = GenericGPD.as_view()
 
 
 # Generics List and Create -> ListCreateAPIVIEW
-class GenerivListAndCreate(IsStaffEditorPermissionMixin, generics.ListCreateAPIView):
+class GenerivListAndCreate(UserQuerySetMixin, IsStaffEditorPermissionMixin, generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     # authentication_classes = [
@@ -114,8 +114,22 @@ class GenerivListAndCreate(IsStaffEditorPermissionMixin, generics.ListCreateAPIV
     # permission_classes = [IsStaffEditorPermissions]
 
     def perform_create(self, serializer):
-        print(serializer.validated_data)
-        serializer.save()
+        # print(serializer.validated_data)
+        # request = self.request
+        # # serializer.validated_data['user'] = request.user
+        # print(serializer.validated_data.get('user'))
+
+        serializer.save(user=self.request.user)
+
+    # Custom Queryset
+    # will turn to Mixin
+    # def get_queryset(self, *args, **kwargs):
+    #     qs = super().get_queryset(*args, **kwargs)
+    #     request = self.request
+    #     user = request.user
+    #     if not user.is_authenticated:
+    #         return Product.objects.none()
+    #     return qs.filter(user=user)
 
 
 generic_list_and_create = GenerivListAndCreate.as_view()

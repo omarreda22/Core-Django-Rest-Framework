@@ -40,5 +40,5 @@ urlpatterns = [
     # ViewSet and Router
     # products/viewset/products/ ~ name_of_product
     # path('viewsets/', include('products.viewset.routers')),
-    path('viewsets/', include(router.urls))
+    path('viewsets/', include(router.urls), name="products")
 ]
